@@ -1,0 +1,21 @@
+id: make_pdf_script
+namespace: company.team
+
+tasks:
+  - id: python
+    type: io.kestra.plugin.scripts.python.Commands
+    namespaceFiles:
+      enabled: true
+      include:
+        - makePDF.py
+        - temp_expenses.csv
+    taskRunner:
+      type: io.kestra.plugin.core.runner.Process
+    beforeCommands:
+      - python -m venv venv
+      - . venv/bin/activate
+      - pip install pandas fpdf
+    commands:
+      - python makePDF.py
+    outputFiles:
+      - ExpensePDF.pdf

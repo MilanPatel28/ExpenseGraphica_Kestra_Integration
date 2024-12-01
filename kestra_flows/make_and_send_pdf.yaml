@@ -1,0 +1,35 @@
+id: make_and_send_pdf
+namespace: company.team
+
+tasks:
+  - id: python
+    type: io.kestra.plugin.scripts.python.Commands
+    namespaceFiles:
+      enabled: true
+      include:
+        - makePDF.py
+        - temp_expenses.csv
+    taskRunner:
+      type: io.kestra.plugin.core.runner.Process
+    beforeCommands:
+      - python -m venv venv
+      - . venv/bin/activate
+      - pip install pandas fpdf matplotlib
+    commands:
+      - python makePDF.py
+    outputFiles:
+      - ExpensePDF.pdf
+
+  - id: send_email
+    type: io.kestra.plugin.notifications.mail.MailSend
+    from: onboarding@resend.dev
+    to: gmail_used_for_resend@gmail.com
+    username: resend
+    password: "{{ kv('resendSecretKey') }}"
+    host: smtp.resend.com
+    port: 465
+    subject: Here is your Expense PDF
+    attachments:
+      - name: ExpensePDF.pdf
+        uri: "{{ outputs.python[\"outputFiles\"][\"ExpensePDF.pdf\"] }}"
+    htmlTextContent: Here is your PDF Report

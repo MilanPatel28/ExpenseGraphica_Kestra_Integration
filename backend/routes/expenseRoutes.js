@@ -50,6 +50,7 @@ router.post('/expenses', authMiddleware, async (req, res) => {
   }
 });
 
+// Route to send the data as a csv to kestra's internal storage using Kestra's API
 router.post('/expenses/sendReport', authMiddleware, async (req, res) => {
   try {
     // Get the authenticated user's ID
