@@ -23,7 +23,7 @@ tasks:
   - id: send_email
     type: io.kestra.plugin.notifications.mail.MailSend
     from: onboarding@resend.dev
-    to: gmail_used_for_resend@gmail.com
+    to: milanpatel2851@gmail.com
     username: resend
     password: "{{ kv('resendSecretKey') }}"
     host: smtp.resend.com

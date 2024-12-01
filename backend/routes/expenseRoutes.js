@@ -1,15 +1,14 @@
 // expenseRoutes.js
 
+const { doesFileExistInKestra, deleteFileFromKestra, uploadFileToKestra} = require('../utils/FileHandlingKestra');
 const express = require('express');
 const router = express.Router();
 const authMiddleware = require('../middleware/auth');
 const Expense = require('../models/Expense');
-const axios = require('axios');
-const FormData = require('form-data'); // Add this import if not already included
 const { Parser } = require('json2csv'); // Library to convert JSON to CSV
+const axios = require('axios')
 const path = require('path');
 const fs = require('fs-extra');
-
 
 // @route   GET /api/expenses
 // @desc    Get all expenses
@@ -51,7 +50,7 @@ router.post('/expenses', authMiddleware, async (req, res) => {
 });
 
 // Route to send the data as a csv to kestra's internal storage using Kestra's API
-// Issue: Overwrite of file is not performed, if already a file exists
+// Issue: Resolved
 router.post('/expenses/sendReport', authMiddleware, async (req, res) => {
   try {
     // Get the authenticated user's ID
@@ -74,43 +73,28 @@ router.post('/expenses/sendReport', authMiddleware, async (req, res) => {
     const filePath = path.join(__dirname, 'temp_expenses.csv');
     fs.writeFileSync(filePath, csvData);
 
-    // Prepare FormData
+    const filename = 'temp_expenses.csv';
+    const kestraApiBaseUrl = 'http://localhost:8080/api/v1/namespaces/company.team/files'; // Kestra API base URL
+
+    // Upload the file to Kestra
+    console.log('Uploading file to Kestra...');
+    await uploadFileToKestra(kestraApiBaseUrl, filename, filePath);
+    console.log('File uploaded successfully.');
+
     const formData = new FormData();
-    formData.append('fileContent', fs.createReadStream(filePath)); // Attach the CSV file
-
-    // Send the CSV file to Kestra
-    const kestraResponse = await axios.post(
-      'http://localhost:8080/api/v1/namespaces/company.team/files?path=temp_expenses.csv', // Kestra API URL
-      formData,
-      {
-        headers: {
-          ...formData.getHeaders(), // Automatically set the correct multipart headers
-          // Authorization: `Bearer ${process.env.KESTRA_API_TOKEN}`, // Add Kestra API token
-        },
-      }
-    );
-
-    // const kestraResponseUserID = await axios.post(
-    //   'http://localhost:8080/api/v1/namespaces/company.team/files?path=temp_expenses.csv', // Kestra API URL
-    //   formData,
-    //   {
-    //     headers: {
-    //       ...formData.getHeaders(), // Automatically set the correct multipart headers
-    //       // Authorization: `Bearer ${process.env.KESTRA_API_TOKEN}`, // Add Kestra API token
-    //     },
-    //   }
-    // );
-    console.log(kestraResponse.data);
-
-    // Handle Kestra response
-    if (kestraResponse.status === 200) {
-      res.status(200).json({ message: 'CSV file sent successfully to Kestra!' });
-    } else {
-      res.status(500).json({ error: 'Failed to send CSV file to Kestra.' });
-    }
+    formData.append('fileContent', fs.createReadStream(filePath));
+    await axios.post(`http://localhost:8080/api/v1/executions/company.team/make_and_send_pdf`, formData, {
+      headers: {
+        // ...formData.getHeaders(),
+        'Content-Type': 'multipart/form-data',
+      },
+    });
 
     // Clean up the temporary file
     fs.unlinkSync(filePath);
+    
+    res.status(200).json({ message: 'File sent successfully to Kestra!' });
+
   } catch (error) {
     console.error('Error in /api/expenses/sendReport:', error.response?.data || error.message);
     res.status(500).json({ error: 'An error occurred while sending the CSV file.' });
