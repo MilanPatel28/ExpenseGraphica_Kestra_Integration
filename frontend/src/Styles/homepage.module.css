@@ -1,0 +1,55 @@
+.expenseItem {
+    width: 45vw;
+    display: flex;
+    /* flex-direction:row; */
+    justify-content: space-between;
+    padding: 2% 0 2% 7%;
+    border: 1px solid rgba(255, 255, 255, .25);
+    border-radius: 20px;
+    background-color: rgba(169, 203, 186, 0.179);
+    box-shadow: 0 0 10px 1px rgba(0, 0, 0, 0.25);
+    backdrop-filter: blur(8px);
+    margin: 2% ;
+    margin-left: 10px;
+}
+
+.detailsDiv {
+    width: 50%;
+}
+
+
+.div1 {
+    border: 1px solid blue;
+    float: left;
+    margin: 10px;
+    padding: 10px 0;
+    text-align: center;
+    background-color: rgba(36, 148, 252, 0.179);
+    box-shadow: 0 0 10px 1px rgba(0, 0, 0, 0.25);
+    border-radius: 14px;
+    backdrop-filter: blur(15px);
+}
+.div1 h4 {
+    padding: 5px;
+    text-align: center;
+    border-bottom: 1px solid blue ;
+}
+
+.div2 {
+    border: 1px solid;
+    float: right;
+    margin: 10px;
+    background-color: rgba(36, 148, 252, 0.179);
+    box-shadow: 0 0 10px 1px rgba(0, 0, 0, 0.25);
+    border-radius: 14px;
+    backdrop-filter: blur(15px);
+}
+.div2 h4 {
+    padding: 10px;
+    text-align: center;
+    border-bottom: 1px solid blue ;
+}
+.div2 ul {
+    padding: 0 0 0 -40px;
+    /* background-color: aqua; */
+}
