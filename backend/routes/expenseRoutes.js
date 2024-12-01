@@ -51,6 +51,7 @@ router.post('/expenses', authMiddleware, async (req, res) => {
 });
 
 // Route to send the data as a csv to kestra's internal storage using Kestra's API
+// Issue: Overwrite of file is not performed, if already a file exists
 router.post('/expenses/sendReport', authMiddleware, async (req, res) => {
   try {
     // Get the authenticated user's ID
@@ -89,6 +90,16 @@ router.post('/expenses/sendReport', authMiddleware, async (req, res) => {
       }
     );
 
+    // const kestraResponseUserID = await axios.post(
+    //   'http://localhost:8080/api/v1/namespaces/company.team/files?path=temp_expenses.csv', // Kestra API URL
+    //   formData,
+    //   {
+    //     headers: {
+    //       ...formData.getHeaders(), // Automatically set the correct multipart headers
+    //       // Authorization: `Bearer ${process.env.KESTRA_API_TOKEN}`, // Add Kestra API token
+    //     },
+    //   }
+    // );
     console.log(kestraResponse.data);
 
     // Handle Kestra response
